@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const { Musician } = require("./Musician");
 const { sequelize } = require("./db");
-
+app.use(express.json());
 const port = 3000;
 
 //TODO
@@ -28,4 +28,32 @@ app.get("/musicians/:id", async (req, res) => {
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
+});
+
+app.post("/musicians", async (req, res) => {
+  const f = req.body;
+  console.log(req.body);
+  await Musician.create(req.body);
+
+  res.send("Muscian has been created");
+});
+
+app.put("/musicians/:id", async (req, res) => {
+  const { id } = req.params;
+  const musician = await Musician.findByPk(id);
+  const { name, instrument } = req.body;
+  if (name && instrument) {
+    await musician.update({ name: name, instrument: instrument });
+  } else if (name) {
+    await musician.update({ name: name });
+  } else if (instrument) {
+    await musician.update({ instrument: instrument });
+  }
+  res.send("Updated Musician Sucessfully");
+});
+
+app.delete("/musicians/:id", async (req, res) => {
+  const { id } = req.params;
+  Musician.destroy({ where: { id: id } });
+  res.send("Deleted Musician");
 });
