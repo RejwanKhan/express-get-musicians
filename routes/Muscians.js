@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 const { Musician } = require("../Musician");
+const { check, validationResult } = require("express-validator");
 
 router.get("/", async (req, res) => {
   const AllMusicians = await Musician.findAll();
@@ -20,13 +21,30 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  const f = req.body;
-  console.log(req.body);
-  await Musician.create(req.body);
+// router.post("/", async (req, res) => {
+//   const f = req.body;
+//   console.log(req.body);
+//   await Musician.create(req.body);
 
-  res.send("Muscian has been created");
-});
+//   res.send("Muscian has been created");
+// });
+
+router.post(
+  "/",
+  [
+    check("name").trim().not().isEmpty(),
+    check("instrument").trim().not().isEmpty(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(401).send({ errors: errors.array() });
+    } else {
+      await Musician.create(req.body);
+      res.status(201).send("Musician has been created");
+    }
+  }
+);
 
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
