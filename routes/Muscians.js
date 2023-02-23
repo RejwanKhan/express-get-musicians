@@ -32,7 +32,7 @@ router.get("/:id", async (req, res) => {
 router.post(
   "/",
   [
-    check("name").trim().not().isEmpty(),
+    check("name").trim().not().isEmpty().isLength({ min: 2, max: 20 }),
     check("instrument").trim().not().isEmpty(),
   ],
   async (req, res) => {
